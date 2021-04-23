@@ -444,7 +444,7 @@ class PasswordResetsController < ApplicationController
 end
 ```
 The above controller is responsible for resetting user passwords, finds a user with a valid token and updates the password.
-We have to `configure our mailers` before we complete this action, for a user has to receive an email to reset the password.
+We have to `configure our mailers` before we complete this action, for a user has to receive an email and reset the password.
 
 Before we configure the mailers, let's create the views.
 - touch `app/views/password_resets/edit.html.erb`
@@ -648,6 +648,7 @@ Thanks for joining and have a great day!
   </p>
 <% end %>
 ```
+Try resetting your password and you should see something close to this,
 
 ![pass_reset_mail](/engineering-education/how-to-setup-user-authentication-from-scratch-with-rails-6/pass_reset_mail.png)
 
@@ -658,7 +659,7 @@ def create
   @user = User.new(user_params)
   if @user.save
     WelcomeMailer.with(user: @user).welcome_email.deliver_now
-    # deliver_now is provided by ActiveJob, this will slow down the browser.
+    # deliver_now is provided by ActiveJob.
     session[:user_id] = @user.id
     redirect_to root_path, notice: 'Successfully created account'
   else
@@ -666,6 +667,7 @@ def create
   end
 end
 ```
+Welcome email should be similar to this,
 
 ![welcome_mailer](/engineering-education/how-to-setup-user-authentication-from-scratch-with-rails-6/welcome_mailer.png)
 

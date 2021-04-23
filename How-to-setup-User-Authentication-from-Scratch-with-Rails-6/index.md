@@ -1,6 +1,6 @@
 ### How to set up User Authentication from Scratch with Rails 6
 
-User Authentication is fundamental in the security of web resources. While setting up user authentication in a `ruby` program, [devise gem](https://rubygems.org/gems/devise) is a popular tool. However, at times it can be too big and complicated to customize especially when building a non-complicated application.
+User Authentication is fundamental in the security of web resources. While setting up user authentication in a `rails` program, [devise gem](https://rubygems.org/gems/devise) is a popular tool. However, at times it can be too big and complicated to customize especially when building a non-complicated application.
 
 ### Goal
 
@@ -27,7 +27,7 @@ To follow along in this article, it is helpful to have:
 - [Configuring routes](#configuring-routes)
 - [Adding Controllers](#adding-controllers)
 - [Configuring views](#configuring-views)
-- [Reseting the password](#reseting-the-password)
+- [Resetting the password](#resetting-the-password)
 - [Setting up mailers](#setting-up-mailers)
 
 ### Project Setup
@@ -142,8 +142,6 @@ rails server
 
 We will see a Rails app with a home page.
 
-We will see a Rails app with a home page..
-
 ![localhost](/engineering-education/how-to-setup-user-authentication-from-scratch-with-rails-6/localhost.png)
 
 Test our model.
@@ -216,7 +214,7 @@ class RegistrationsController < ApplicationController
 end
 ```
 
-`session` stores data for one request and used in another request.
+`session` stores data for one request and used in another request. This controller is responsible for creating a new user and saving it to the database.
 
 - touch `app/controllers/sessions_controller.rb`
 
@@ -244,6 +242,7 @@ class SessionsController < ApplicationController
   end
 end
 ```
+`SessionsController` provides login functionality to an existing user, also logs out a user by deleting session data.
 
 - touch `app/controllers/passwords_controller.rb`
 
@@ -269,6 +268,7 @@ class PasswordsController < ApplicationController
   end
 end
 ```
+`PassWordsController` allows signed_in_user to update passwords.
 
 Update `app/controllers/application_controller.rb`
 
@@ -287,6 +287,8 @@ class ApplicationController < ActionController::Base
   end
 end
 ```
+- Note inheritance hierarchy in this class, `set_current_user` will be accessed with all controllers in the subdirectory.
+  This controller finds signed_in_user with `session[:user_id]` and stores it as `Current.user` if present and can be accessed in our views.
 
 - touch `app/models/current.rb`
 
@@ -301,6 +303,7 @@ end
 
 Controllers make model data available to the view,this data can be displayed to the user.
 
+Create a `sign_up` form
 - touch `app/views/registrations/new.html.erb`
 
 ```erb
@@ -327,10 +330,7 @@ Controllers make model data available to the view,this data can be displayed to 
   </p>
 <% end %>
 ```
-
-We are creating a form with input fields tied to the user model.
-This is a `sign up` form.
-
+Create a `sign_in` form
 - touch `app/views/sessions/new.html.erb`
 
 ```erb
@@ -353,8 +353,7 @@ This is a `sign up` form.
 <% end %>
 ```
 
-This is the `sign_in` form.
-
+Create a `password_edit` form
 - touch `app/views/passwords/edit.html.erb`
 
 ```erb
@@ -388,6 +387,7 @@ This is the `sign_in` form.
    <%= yield %>
  </body>
 ```
+Within the context of a layout, `<%= yield %>` identifies a section where content from the view should be inserted.
 
 Open `app/views/welcome/index.html.erb` and add ;
 
@@ -402,12 +402,13 @@ Open `app/views/welcome/index.html.erb` and add ;
   <%= link_to 'Login', sign_in_path %>
 <% end %>
 ```
+We check to see if `Current.user` is present and provide an `edit_password_link` and a `sign_out_button`, if not a `sign_up_link` and `login_link` is seen.
 
 - Refresh your app and check to see if you can create a new account, sign_in and edit your password.
 
 ![sign_up](/engineering-education/how-to-setup-user-authentication-from-scratch-with-rails-6/sign_up.png)
 
-### Reseting the password
+### Resetting the password
 
 We already have our routes in place,we can now update our controllers and views to reset passwords.
 
@@ -416,17 +417,6 @@ We already have our routes in place,we can now update our controllers and views 
 ```rb
 class PasswordResetsController < ApplicationController
   def new; end
-
-  def create
-    @user = User.find_by(email: params[:email])
-
-    if @user.present?
-      # send mail
-      PasswordMailer.with(user: @user).reset.deliver_later
-      # deliver_later is provided by ActiveJob
-    end
-    redirect_to root_path, notice: 'Please check your email to reset the password'
-  end
 
   def edit
     # finds user with a valid token
@@ -453,7 +443,10 @@ class PasswordResetsController < ApplicationController
 
 end
 ```
+The above controller is responsible for resetting user passwords, finds a user with a valid token and updates the password.
+We have to `configure our mailers` before we complete this action, for a user has to receive an email to reset the password.
 
+Before we configure the mailers, let's create the views.
 - touch `app/views/password_resets/edit.html.erb`
 
 ```erb
@@ -541,6 +534,21 @@ Click the link above if you recognise the activity, link expires in 15 minutes
 <%= password_reset_edit_url(token: @token) %>
 ```
 
+Add a create action in `app/controllers/password_resets_controller.rb` above the edit action
+
+```rb
+def create
+    @user = User.find_by(email: params[:email])
+
+    if @user.present?
+      # send mail
+      PasswordMailer.with(user: @user).reset.deliver_later
+      # deliver_later is provided by ActiveJob
+    end
+    redirect_to root_path, notice: 'Please check your email to reset the password'
+  end
+```
+
 - Note: in our `app/controllers/password_reset_controller.rb` we have called out mailer class `PasswordMailer.with(user: @user).reset.deliver_later`, the `deliver_later` is part of [Action_job](https://edgeguides.rubyonrails.org/active_job_basics.html) it enables us to que background jobs.
 - One more setting before we send our emails, we need to open up our `app/config/environments/development.rb` and add `config.action_mailer.default_url_options = { host: "localhost:3000" }` in the block.
 
@@ -561,7 +569,7 @@ config.action_mailer.delivery_method = :smtp
   }
 ```
 
-Change the `email` and `password` to match your credentials and restart your server.
+Change the `email` and `password` to match your credentials.
 
 - Now create a welcome mailer
 
@@ -643,8 +651,6 @@ Thanks for joining and have a great day!
 
 ![pass_reset_mail](/engineering-education/how-to-setup-user-authentication-from-scratch-with-rails-6/pass_reset_mail.png)
 
-![pass_reset_mail](./pass_reset_mail.png)
-
 - To send the Welcome email, we will have to update our `create` action in `app/controllers/registrations_controller.rb` to ...
 
 ```rb
@@ -672,18 +678,19 @@ In this article, we have implemented a complete Rails authentication system by f
 - [Configuring routes](#configuring-routes)
 - [Adding Controllers](#adding-controllers)
 - [Configuring views](#configuring-views)
-- [Reseting the password](#reseting-the-password)
+- [Resetting the password](#resetting-the-password)
 - [Setting up mailers](#setting-up-mailers)
 
 The finalized code can be accessed from [here](https://github.com/Njunu-sk/Rails-Authentication). Feel free to give the project a star.
 
 ### Conclusion
 
-Authentication is the first step in ensuring the security of your application resources. << say something about the authentication system you have developed in the article and why it is fit.>>
+Authentication is the first step in ensuring the security of your application resources. We have learned about the MVC design. Authentication system from scratch and setting up Action Mailer and ActiveJob to send our emails and session security in Rails.
+
+Please visit [Go_Rails](https://gorails.com/) for more Ruby on Rails content, including the above in this tutorial.
 
 ### References
 
-- [Go_Rails](https://gorails.com/)
 - [Rails_edge_guides](https://edgeguides.rubyonrails.org)
 - [Code_project](https://www.codeproject.com/articles/575551/user-authentication-in-ruby-on-rails)
 

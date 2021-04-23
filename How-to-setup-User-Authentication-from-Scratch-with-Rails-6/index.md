@@ -95,6 +95,7 @@ end
 ```
 We are adding model level validation to our `email` field.
 `password_digest` is used to create password fields in rails and encryption is done by the [bcyrpt_gem](https://rubygems.org/gems/bcrypt). Include the gem in your Gemfile.
+- Install by running `bundle install`
 
 Update `app/models/users.rb` to:
 
@@ -107,7 +108,6 @@ class User < ApplicationRecord
    validates :email, presence: true, uniqueness: true, format: { with: /\A[^@\s]+@[^@\s]+\z/, message: 'Invalid email' }
 end
 ```
-- Uncomment bcrypt_gem in your Gemfile and install by running `bundle install`
 
 - Remember to run your migrations.
 
@@ -161,7 +161,7 @@ We are matching our routes to the above controller and actions
 ### Add Controllers
 Routers determine which controller to use for the request,controllers will then receive the request and save or fetch data from our models.
 
--touch `app/controllers/registrations_controller.rb`
+- touch `app/controllers/registrations_controller.rb`
 ```rb
 class RegistrationsController < ApplicationController
   # instantiates new user
@@ -215,7 +215,7 @@ class SessionsController < ApplicationController
 end
 ```
 
--touch `app/controllers/passwords_controller.rb`
+- touch `app/controllers/passwords_controller.rb`
 ```rb
 class PasswordsController < ApplicationController
   # allows only logged in users
@@ -256,7 +256,7 @@ class ApplicationController < ActionController::Base
   end
 end
 ```
--touch `app/models/current.rb`
+- touch `app/models/current.rb`
 
 ```rb
 class Current < ActiveSupport::CurrentAttributes
@@ -269,7 +269,7 @@ end
 
 Controllers makes model data available to the view,this data can be displayed to the user.
 
--touch `app/views/registrations/new.html.erb`
+- touch `app/views/registrations/new.html.erb`
 ```erb
 <h1>Sign Up</h1>
 
@@ -319,7 +319,7 @@ This is a `sign up` form.
 ```
 This is the `sign_in` form.
 
--touch `app/views/passwords/edit.html.erb`
+- touch `app/views/passwords/edit.html.erb`
 
 ```erb
 <h1>Edit Password</h1>
@@ -368,7 +368,7 @@ This is the `sign_in` form.
 
 ### Password reset
 We already have our routes in place,we can now update our controllers and views to reset passwords.
--touch `app/controllers/password_resets_controller.rb`
+- touch `app/controllers/password_resets_controller.rb`
 ```rb
 class PasswordResetsController < ApplicationController
   def new; end
@@ -410,7 +410,7 @@ class PasswordResetsController < ApplicationController
 end
 ```
 
--touch `app/views/password_resets/edit.html.erb`
+- touch `app/views/password_resets/edit.html.erb`
 
 ```erb
 <h1>Reset your password?</h1>

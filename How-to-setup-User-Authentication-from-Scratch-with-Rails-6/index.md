@@ -3,7 +3,7 @@ User Authentication is fundamental to most websites. [Devise gem](https://rubyge
 
 ### Goals
 
-This tutorial will set up Authentication from scratch, able to learn basic features of Rails. Understand the Model View Controller Architecture and some more knowledge on how Cookies operate in Rails.
+This tutorial will set up Authentication from scratch, able to learn basic features of Rails. Understand the Model View Controller Architecture and some more knowledge on how sessions operate in Rails.
 We are working under the assumption that session encryption in Rails is secure.
 ### Prerequisites
 
@@ -189,7 +189,7 @@ end
 ```
 `session` stores data for one request and used in another request.
 
--touch `app/controllers/sessions_controller.rb`
+- touch `app/controllers/sessions_controller.rb`
 ```rb
 class SessionsController < ApplicationController
   def new; end
@@ -297,7 +297,7 @@ Controllers makes model data available to the view,this data can be displayed to
 We are creating a form with input fields tied to the user model.
 This is a `sign up` form.
 
--touch `app/views/sessions/new.html.erb`
+- touch `app/views/sessions/new.html.erb`
 ```erb
 <h1>Sign In</h1>
 

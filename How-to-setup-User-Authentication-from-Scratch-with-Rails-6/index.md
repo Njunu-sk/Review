@@ -1,5 +1,5 @@
 ### How to set up User Authentication from Scratch with Rails 6
-User Authentication is fundarmental to most websites. [Devise gem](https://rubygems.org/gems/devise) is popular in achieving this task but at times it's too big and complicated to customize.
+User Authentication is fundamental to most websites. [Devise gem](https://rubygems.org/gems/devise) is popular in achieving this task but at times it's too big and complicated to customize.
 
 ### Goals
 
@@ -28,8 +28,8 @@ To follow along in this article, it is helpful to have the following:
 - [Setting_up_mailers](#setting-up-mailers)
 
 ### Project Setup
-
 Generate a new rails application by running:
+
 ```bash
 rails new auth -T
 ```
@@ -42,40 +42,46 @@ Under the app folder, Rails maintains files for the controllers, models and view
 
 ### Basic understanding of MVC
 Model View Controller is a design pattern that divides related programming logic making it easier to reason about.
-By convention rails follow this design pattern.
+By convention, rails follow this design pattern.
 
-- Let's start with creating our routes. In `config/routes.rb`.
+- Create a route. In `config/routes.rb`.
+
 ```rb
 Rails.application.routes.draw do
   root 'welcome#index'
 end
 ```
 We are telling Rails to root to `index` action in `WelcomeController`. To create the controller we'll run a generator
+
 ```bash
 rails generate controller Welcome index --skip-routes
 ```
 We add the argument `--skip-routes` because we have defined the route.
 
 Controllers are buckets of actions.
-The generator will create files but the most important is the controller file, `app/controllers/welcome_controller.rb`
+The generator will create files,most important is the controller file, `app/controllers/welcome_controller.rb`
+
 ```rb
 class WelcomeController < ApplicationController
   def index
   end
 end
 ```
-The generator also created a file in `app/views/welcome/index.html.erb`, by default Rails renders a view that corresponds to the name of a controller action.
+The generator also created a file in `app/views/welcome/index.html.erb`,by default Rails renders a view that corresponds to the name of a controller action.
 Replace the view content with,
+
 ```erb
 <h1>Rails Authentication</h1>
 ```
-We have our controller and views in place, let's create the model.
-- `model` is a Ruby class that hold data, we define it using a generator
+We have our controller and views in place. Create a model, `model` is a Ruby class that hold data,we define it using a generator
+
 ```bash
 rails generate model User email:string password_digest:string
 ```
-This will generate several files, we will only focus on..`db/migrate/<timestamp>_create_users.rb` and the `app/models/users.rb`
+This will generate several files, we will only focus on..`db/migrate/<timestamp>_create_users.rb` and the `app/models/users.rb`.
+
 Update  `db/migrate/<timestamp>_create_users.rb` to:
+
 ```rb
 class CreateUsers < ActiveRecord::Migration[6.1]
   def change
@@ -88,45 +94,43 @@ class CreateUsers < ActiveRecord::Migration[6.1]
 end
 ```
 We are adding model level validation to our `email` field.
-`password_digest` is used to create password fields in rails and encryption is done by the [bcyrpt_gem](https://rubygems.org/gems/bcrypt). Include the gem in your gemfile.
+`password_digest` is used to create password fields in rails and encryption is done by the [bcyrpt_gem](https://rubygems.org/gems/bcrypt). Include the gem in your Gemfile.
 
 Update `app/models/users.rb` to:
+
 ```rb
 class User < ApplicationRecord
+   # adds virtual attributes for authentication
    has_secure_password
 
+   # validates email
    validates :email, presence: true, uniqueness: true, format: { with: /\A[^@\s]+@[^@\s]+\z/, message: 'Invalid email' }
 end
 ```
-```bash
-gem install bcrypt
-```
-- Install the gem by running `bundle install`
-- Remember to run your migrations [rails_migrations](https://edgeguides.rubyonrails.org/active_record_migrations.html#running-migrations)
+- Uncomment bcrypt_gem in your Gemfile and install by running `bundle install`
+
+- Remember to run your migrations.
 
 ```bash
 rails db:migrate
 ```
 
-`has_secure_password` adds methods to set and authenticate [view_page](https://api.rubyonrails.org/classes/ActiveModel/SecurePassword/ClassMethods.html).
-The next line adds model level validation, ensures that email is present, unique and conforms to a certain format.
-
-Let's test our app. Fire up the rails app with
+Test our app,
 ```bash
 rails server
 ```
-We will see a Rails app with a home page..
+We will see a Rails app with a home page.
 
 
-![localhost](./localhost.png)
+![localhost](/engineering-education/how-to-setup-user-authentication-from-scratch-with-rails-6/localhost.png)
 
-- Let's test our model.
+Test our model.
 ```bash
 rails console
 ```
 Create a new user
 
-![railsconsole](./railsconsole.png)
+![railsconsole](/engineering-education/how-to-setup-user-authentication-from-scratch-with-rails-6/railsconsole.png)
 
 
 ### Configure_routes
@@ -153,14 +157,14 @@ Rails.application.routes.draw do
 end
 ```
 We are matching our routes to the above controller and actions
-More on routes please visit [rails_routes](https://guides.rubyonrails.org/routing.html)
 
 ### Add Controllers
-Routers determine which controller to use for the request, controllers will then receive the request and save or fetch data from our models.
+Routers determine which controller to use for the request,controllers will then receive the request and save or fetch data from our models.
 
-- Let's start with our `registrations` controller. Create `app/controllers/registrations_controller.rb` with the following contents
+-touch `app/controllers/registrations_controller.rb`
 ```rb
 class RegistrationsController < ApplicationController
+  # instantiates new user
   def new
     @user = User.new
   end
@@ -168,6 +172,7 @@ class RegistrationsController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
+    # stores saved user id in a session
       session[:user_id] = @user.id
       redirect_to root_path, notice: 'Successfully created account'
     else
@@ -177,23 +182,23 @@ class RegistrationsController < ApplicationController
 
   private
   def user_params
+    # strong parameters
     params.require(:user).permit(:email, :password, :password_confirmation)
   end
 end
 ```
-We instantiate the class User in `app/models/user.rb` in the `new` action. Then create the User instance in `create` action setting it's `id` to `session`.
-`session` is a place where you store data for one request and can be used in another request.
-- Note the private method `user_params`, it holds column_names of the `user` model, [permited_params](https://edgeguides.rubyonrails.org/action_controller_overview.html#strong-parameters).
-This controller allows us to create a new User.
+`session` stores data for one request and used in another request.
 
-- Lets create `app/controllers/sessions_controller.rb` with the following contents
+-touch `app/controllers/sessions_controller.rb`
 ```rb
 class SessionsController < ApplicationController
   def new; end
 
   def create
     user = User.find_by(email: params[:email])
+    # finds existing user, checks to see if user can be authenticated
     if user.present? && user.authenticate(params[:password])
+    # sets up user.id sessions
       session[:user_id] = user.id
       redirect_to root_path, notice: 'Logged in successfully'
     else
@@ -203,22 +208,23 @@ class SessionsController < ApplicationController
   end
 
   def destroy
+    # deletes user session
     session[:user_id] = nil
     redirect_to root_path, notice: 'Logged Out'
   end
 end
 ```
-When a new user is created, we need to sign_in the user. The `create` method finds existing user, checks if user is present and authenticated, refers to database records, if true it logs in the user else throws a flash message `invalid email or password`.
-The `delete` action deletes user session when user is `Logged Out`
 
-- Create `app/controllers/passwords_controller.rb` with the following contents
+-touch `app/controllers/passwords_controller.rb`
 ```rb
 class PasswordsController < ApplicationController
+  # allows only logged in users
   before_action :require_user_logged_in!
 
   def edit; end
 
   def update
+    # update user password
     if Current.user.update(password_params)
       redirect_to root_path, notice: 'Password Updated'
     else
@@ -232,41 +238,38 @@ class PasswordsController < ApplicationController
   end
 end
 ```
-There is alot going on in this controller, first the `before_action :require_user_logged_in!` and the `Current` class.
-We will get back to this in the tutorial, the controller enables the user to edit and update the password.
 
-In `app/controllers/application_controller.rb` update it to:
+ Update `app/controllers/application_controller.rb`
+
 ```rb
 class ApplicationController < ActionController::Base
   before_action :set_current_user
 
   def set_current_user
+    # finds user with session data and stores it if present
     Current.user = User.find_by(id: session[:user_id]) if session[:user_id]
   end
 
   def require_user_logged_in!
-    redirect_to sign_in_path, alert: 'You must be signed in..' if Current.user.nil?
+    # allows only logged in user
+    redirect_to sign_in_path, alert: 'You must be signed in' if Current.user.nil?
   end
 end
 ```
-We define our method `require_user_logged_in!`, this ensures user is logged in before updating the password.
-We then have our `Current.user` which find user by session_id and stores it in `set_current_user` method.
+-touch `app/models/current.rb`
 
-- Lets create a new file `app/models/current.rb` with the following contents
 ```rb
 class Current < ActiveSupport::CurrentAttributes
+  # makes Current.user accessible in view files.
   attribute :user
 end
 ```
-This method allows us to call `Current.user` in our views and return the current user.Visit [api_docs](https://api.rubyonrails.org/classes/ActiveSupport/CurrentAttributes.html) for more information.
-
-We now can `sign_up`, `sign_in` and `update_password`, let's update our views.
 
 ### Configure views
 
-Controllers makes model data available to the view, this data can then be displayed to the user.
-- Let's start by creating the `registrations` views.
-Create a new file `app/views/registrations/new.html.erb` with the above content
+Controllers makes model data available to the view,this data can be displayed to the user.
+
+-touch `app/views/registrations/new.html.erb`
 ```erb
 <h1>Sign Up</h1>
 
@@ -294,7 +297,7 @@ Create a new file `app/views/registrations/new.html.erb` with the above content
 We are creating a form with input fields tied to the user model.
 This is a `sign up` form.
 
-- Next, lets create a new file `app/views/sessions/new.html.erb` and add the following
+-touch `app/views/sessions/new.html.erb`
 ```erb
 <h1>Sign In</h1>
 
@@ -316,7 +319,7 @@ This is a `sign up` form.
 ```
 This is the `sign_in` form.
 
-- Let's add a password update form, create file `app/views/passwords/edit.html.erb` and add the following
+-touch `app/views/passwords/edit.html.erb`
 
 ```erb
 <h1>Edit Password</h1>
@@ -361,11 +364,11 @@ This is the `sign_in` form.
  ```
 - Refresh your app and check to see if you can create a new account, sign_in  and edit your password.
 
-![sign_up](./sign_up.png)
+![sign_up](/engineering-education/how-to-setup-user-authentication-from-scratch-with-rails-6/sign_up.png)
 
 ### Password reset
-We already have our routes in place, we can now update our controllers and views to reset passwords.
-- Lets create a file `app/controllers/password_resets_controller.rb` and add the following
+We already have our routes in place,we can now update our controllers and views to reset passwords.
+-touch `app/controllers/password_resets_controller.rb`
 ```rb
 class PasswordResetsController < ApplicationController
   def new; end
@@ -374,19 +377,22 @@ class PasswordResetsController < ApplicationController
     @user = User.find_by(email: params[:email])
 
     if @user.present?
-      #send mail
+      # send mail
       PasswordMailer.with(user: @user).reset.deliver_later
+      # deliver_later is provided by ActiveJob
     end
     redirect_to root_path, notice: 'Please check your email to reset the password'
   end
 
   def edit
+    # finds user with a valid token
     @user = User.find_signed!(params[:token], purpose: 'password_reset')
     rescue ActiveSupport::MessageVerifier::InvalidSignature
       redirect_to sign_in_path, alert: 'Your token has expired. Please try again.'
   end
 
   def update
+    # updates user's password
     @user = User.find_signed!(params[:token], purpose: 'password_reset')
     if @user.update(password_params)
       redirect_to sign_in_path, notice: 'Your password was reset successfully. Please sign in'
@@ -403,10 +409,8 @@ class PasswordResetsController < ApplicationController
 
 end
 ```
-When one requests a reset password, the controller will check to see if email is present, if so sends a reset token with `PasswordMailer` more on mailers later.
-In the `edit` action note the use of `find_signed!` provided by rails to set specific token to the user. It takes two arguments `params[:token]` and `purpose`[globalid](https://github.com/rails/globalid).
 
-- Create a new file `app/views/password_resets/edit.html.erb` and add the following
+-touch `app/views/password_resets/edit.html.erb`
 
 ```erb
 <h1>Reset your password?</h1>
@@ -446,24 +450,27 @@ In the `edit` action note the use of `find_signed!` provided by rails to set spe
 
 ### Setting up mailers
 
-Let's start by creating our `PasswordMailer`, feel free and check the docs for more information [mailers](https://edgeguides.rubyonrails.org/action_mailer_basics.html).
 - We generate our mailers using the above command
+
 ```bash
   rails generate mailer Password reset
 ```
-this will generate several files but the most important in the `app/mailers/password_mailer.rb` and the view files.
-- Lets update our `app/mailers/password_mailers.rb` to this:
+Several files are generated,most important is `app/mailers/password_mailer.rb` and the view files.
+
+- Update `app/mailers/password_mailers.rb` to this:
 ```rb
 class PasswordMailer < ApplicationMailer
   def reset
+    # assigns a token with a purpose and expiry time
     @token = params[:user].signed_id(purpose: 'password_reset', expires_in: 15.minutes)
-
+    # sends email
     mail to: params[:user].email
   end
 end
 ```
 Our views should look like this
-In `app/views/password_mailer/reset.html.erb`
+- touch `app/views/password_mailer/reset.html.erb`
+
 ```erb
 Hi <%= params[:user].email %>,<br>
 
@@ -474,6 +481,7 @@ Click the link above if you recognise the activity, link expires in 15 minutes
 
 ```
 And our `app/views/password_mailer/reset.text.erb`
+
 ```erb
 Hi <%= params[:user].email %>
 
@@ -486,7 +494,8 @@ Click the link above if you recognise the activity, link expires in 15 minutes
 - Note: in our `app/controllers/password_reset_controller.rb` we have called out mailer class `PasswordMailer.with(user: @user).reset.deliver_later`, the `deliver_later` is part of [Action_job](https://edgeguides.rubyonrails.org/active_job_basics.html) it enables us to que background jobs.
 - One more setting before we send our emails, we need to open up our `app/config/environments/development.rb` and add `config.action_mailer.default_url_options = { host: "localhost:3000" }` in the block.
 
-Phew, we are almost done with the application. Last lap,now that we are in the `app/config/environments/development.rb` let's set up to use gmail [Configuration_for_gmail](https://edgeguides.rubyonrails.org/action_mailer_basics.html#action-mailer-configuration-for-gmail).
+- In `app/config/environments/development.rb` let's set up to use gmail.
+
 Add the following in the block
 ```rb
 config.action_mailer.delivery_method = :smtp
@@ -502,13 +511,15 @@ config.action_mailer.delivery_method = :smtp
 ```
 Change the `email` and `password` to match your credentials and restart your server.
 
-- Now let's create our welcome mailer
+- Now create a welcome mailer
+
 ```bash
   rails generate mailer Welcome
 ```
-Update the `app/mailers/welcome_mailer.rb` to
+Update the `app/mailers/welcome_mailer.rb`
 ```rb
 class WelcomeMailer < ApplicationMailer
+  # sends a welcome email
   def welcome_email
     @user = params[:user]
     @url = 'http://localhost:3000/sign_in'
@@ -517,7 +528,7 @@ class WelcomeMailer < ApplicationMailer
 end
 ```
 
-Update your mailer views in `app/views/welcome_mailer/welcome_email.html.erb` to:
+Update your mailer views in `app/views/welcome_mailer/welcome_email.html.erb`
 ```erb
 <!DOCTYPE html>
 <html>
@@ -551,6 +562,7 @@ Thanks for joining and have a great day!
 ```
 
 - Remember to add a link in `app/views/sessions/new.html.erb` to reset your passwords, update the file to match the above.
+
 ```erb
 <h1>Sign In</h1>
 
@@ -571,7 +583,7 @@ Thanks for joining and have a great day!
   </p>
 <% end %>
 ```
-![pass_reset_mail](./pass_reset_mail.png)
+![pass_reset_mail](/engineering-education/how-to-setup-user-authentication-from-scratch-with-rails-6/pass_reset_mail.png)
 
 
 - To send the Welcome email, we will have to update our `create` action in `app/controllers/registrations_controller.rb` to ...
@@ -580,6 +592,7 @@ def create
   @user = User.new(user_params)
   if @user.save
     WelcomeMailer.with(user: @user).welcome_email.deliver_now
+    # deliver_now is provided by ActiveJob, this will slow down the browser.
     session[:user_id] = @user.id
     redirect_to root_path, notice: 'Successfully created account'
   else
@@ -587,13 +600,13 @@ def create
   end
 end
 ```
-![welcome_mailer](./welcome_mailer.png)
+![welcome_mailer](/engineering-education/how-to-setup-user-authentication-from-scratch-with-rails-6/welcome_mailer.png)
 
 ### Summary
 
-In this article, we have implemented a complete Rails authentication system.
+Congratulations, you have implemented a complete Rails authentication system.
 
-The finalized code can be accessed from [here](https://github.com/Njunu-sk/Rails-Authentication). Feel free to give the project a star.
+Code can be accessed from [here](https://github.com/Njunu-sk/Rails-Authentication). Feel free to give the project a star.
 
 ### Conclusion
 

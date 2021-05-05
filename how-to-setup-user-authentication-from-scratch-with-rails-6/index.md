@@ -240,10 +240,10 @@ class RegistrationsController < ApplicationController
 end
 ```
 
--This controller is responsible for creating a new user and saving it to the database.
-The `new` action initializes a new object in the User model and stores it as an instance variable, this can the be accessed in the views.
-The `create` action creates the user instance setting it's id to a `session`, if this process is successful it redirects to our `root path` else renders a `new` view.
-`session` stores data for one request and used in another request.
+- This controller is responsible for creating a new user and saving it to the database.
+  The `new` action initializes a new object in the User model and stores it as an instance variable, this can the be accessed in the views.
+  The `create` action creates the user instance setting it's id to a `session`, if this process is successful it redirects to our `root path` else renders a `new` view.
+  `session` stores data for one request and used in another request.
 
 - Let's create the `sessions_controller.rb` by running the command `touch` `app/controllers/sessions_controller.rb`
 

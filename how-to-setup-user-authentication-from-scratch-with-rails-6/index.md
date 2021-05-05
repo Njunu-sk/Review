@@ -52,7 +52,7 @@ In the app folder, `Rails` maintains files for the controllers, models, and view
 ### Basic understanding of MVC
 
 Model View Controller is a design pattern that divides related programming logic making it easier to reason about.
-By convention, rails follow this design pattern.I'd higly recommend going through [Understanding the MVC Architecture in Rails](https://www.sitepoint.com/model-view-controller-mvc-architecture-rails/) article to familiarize yourself with the Architecture.
+By convention, rails follow this design pattern.I'd higly recommend going through [Understanding the MVC in Rails](https://www.sitepoint.com/model-view-controller-mvc-architecture-rails/) article to familiarize yourself with the Architecture.
 
 - Create a route. In `config/routes.rb`.
 
@@ -90,7 +90,7 @@ Replace the view content with:
 
 - We have our controller and views in place, let's create the model.
 
-A `model` is a `Ruby` class that serves as the template to a databse table that holds data. We define it using a generator as follows:
+A `model` is a `Ruby` class that serves as the template to a database table that holds data. We define it using a generator as follows:
 
 ```bash
 rails generate model User email:string password_digest:string
@@ -114,7 +114,8 @@ end
 
 We are adding model level validation to our `email` field.
 `password_digest` is used to create password fields in rails and encryption is done by the [bcyrpt_gem](https://rubygems.org/gems/bcrypt).
-Include the gem in your Gemfile.
+
+- Include the gem in your Gemfile.
 
 ```rb
   # Gemfile
@@ -136,10 +137,10 @@ end
 ```
 
 We'll ensure that email field is present and unique before a user gets saved to the database.
-Email addresses should also conform to a pattern we achieve this will the help of the given `regular expression`, this is a powerful language for matching string patterns.
+Email addresses should also conform to a pattern,we achieve this will the help of the given `regular expression`, this is a powerful language for matching string patterns.
 
 - Remember to run your migrations.
-  Migrations are feature of `Active Record` that allow you to evolve your database schema over time.
+- Migrations are feature of `Active Record` that allow you to evolve your database schema over time.
   Before a migration is run, there will be no table. After, the table will exist.
 
 ```bash
@@ -239,9 +240,10 @@ class RegistrationsController < ApplicationController
 end
 ```
 
-The `new` action initalizes a new object in the User model and stores it as an instance variable, this can the be accessed in the views.
+-This controller is responsible for creating a new user and saving it to the database.
+The `new` action initializes a new object in the User model and stores it as an instance variable, this can the be accessed in the views.
 The `create` action creates the user instance setting it's id to a `session`, if this process is successful it redirects to our `root path` else renders a `new` view.
-`session` stores data for one request and used in another request. This controller is responsible for creating a new user and saving it to the database.
+`session` stores data for one request and used in another request.
 
 - Let's create the `sessions_controller.rb` by running the command `touch` `app/controllers/sessions_controller.rb`
 
@@ -271,7 +273,7 @@ end
 ```
 
 `SessionsController` provides login functionality to an existing user, also logs out a user by deleting session data.
-The `create` action finds user with a corresponding email address in the database,it uses logical operator to check if user is present and authenticated and logs in the user if both constraints are true.
+The `create` action finds user with a corresponding email address in the database,it uses logical operator to check if user is present and authenticated.Log's in the user if both constraints are true.
 The `destroy` action sets user session to nil, logging out the user.
 
 - Let's create the `passwords_controller.rb` by running the command `touch` `app/controllers/passwords_controller.rb`
@@ -321,7 +323,8 @@ end
 ```
 
 - Note inheritance hierarchy in this class, `set_current_user` will be accessed with all controllers in the subdirectory.
-  This controller finds signed_in_user with `session[:user_id]` and stores it as `Current.user` if present and can be accessed in our views.
+  This controller finds signed_in_user with `session[:user_id]` and stores it as `Current.user` if present.
+- The `Current.user`can be accessed in our views.
 
 - Let's create the `current.rb` class by running the command `touch` `app/models/current.rb`, this will allows us to call `Current.user` in our views.
 

@@ -337,7 +337,7 @@ end
 
 ### Configuring views
 
-Controllers make model data available to the view,this data can be displayed to the user.
+Controllers makes model data available to the view,this data can be displayed to the user.
 Rails provides us with form builder object yielded by `form_with` which contains helper methods for generating form elements.
 
 Create a `sign_up` form
@@ -490,7 +490,7 @@ end
 
 The above controller is responsible for resetting user passwords.
 The `edit` action finds signed user with a valid token and purpose, passwords can only be changed with valid tokens if not an `ActiveSupport::MessageVerifier` is raised.
-The `update` action updates user's password with valid tokens and redirects to the `sign_up_path`.
+The `update` action updates user's password with valid tokens and redirects to the `sign_in_path`.
 
 We have to `configure our mailers` before we complete this action, for a user has to receive an email and reset the password.
 

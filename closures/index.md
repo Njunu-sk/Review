@@ -1,6 +1,26 @@
 ### Introduction
 
-Closure in computer science is a first-class function with free variables that are bound in the lexical environment.
+Closure in computer science is a first-class function with free variables that are bound in the lexical environment. This is a sensitive topic to all developers and mostly those who are adapting the functional paradigm.
+
+### Prerequisites
+
+To follow along this article, it is helpful to have the following:
+
+- [Ruby](https://www.ruby-lang.org/en/)
+- Basic knowledge of Ruby programming.
+- How to use the intercative ruby console.
+
+### Overview
+
+- [Closures](#closures)
+- [Rules_of_identifying_a_closure](#rules-of-identifying-a-closure)
+- [Closure_usecases](#closure-usecases)
+- [Blocks](#blocks)
+- [Relationship_between_blocks_and_closures](#relationship-between-blocks-and-closures)
+- [Procs](#procs)
+- [The_difference_between_a_lambda_and_a_proc](#the-difference-between-a-lambda-and-a-proc)
+
+### Closures
 
 In order to get a clear picture of what closures are we need to understand _first-class functions_, _free variables_, and _lexical environment_.
 
@@ -32,7 +52,7 @@ So it is safe to define closures as a block of code that can be used later and s
 - Function body should reference some variable
 - Variable should be declared in a parent scope
 
-## Why do we need closures?
+## Closure usecases
 
 1. Closures preserve the partial running state of a program, thus can be used to simulate classes.
 1. Closures are used to implement callbacks in Ruby.
@@ -136,7 +156,7 @@ Ruby offers an alternative way of calling lambdas, stabby lambdas
 ->(x, y) { x + y }.call(x, y)
 ```
 
-### The Difference Between a lambda and a Proc
+### The difference between a lambda and a proc
 
 #### Arity
 
@@ -210,3 +230,16 @@ c.method_that_calls_proc_or_lambda proc { return }
 ```
 
 Returns a `LocalJumpError`, implying that a Proc always returns from the context it was created. In our case, Proc was created in the _main context_ which means returning from the main context which is the top-most level of our program and it's impossible.
+
+### Conclusion
+
+Closures are powerful in the hands of a developer, one can write functional code in Ruby and also be able to write your own lazy enumarables. For further exploration in the topic I would highly recommend the [Mastering_Ruby_Closures](http://media.pragprog.com/titles/btrubyclo/intro.pdf) book.
+
+### References
+
+- [Mastering_Ruby_Closures](http://media.pragprog.com/titles/btrubyclo/intro.pdf)
+- [The_Well_Grounded_Rubyist](https://www.amazon.com/Well-Grounded-Rubyist-David-Black/dp/1617295213)
+
+You can always reach out to me via [Twitter](https://twitter.com/njunusimon)
+
+Happy coding!!

@@ -26,21 +26,23 @@ The code above demonstrates lexical scoping, `inner_scope` can only be visible f
 
 So it is safe to define closures as a block of code that can be used later and stores variables in an environment in which it was created.
 
-**Rules of identifying a closure**
+### Rules of identifying a closure
 
 - It needs to be a function
 - Function body should reference some variable
 - Variable should be declared in a parent scope
 
-**Why do we need closures?**
+## Why do we need closures?
 
 1. Closures preserve the partial running state of a program, thus can be used to simulate classes.
 1. Closures are used to implement callbacks in Ruby.
 
 To have a good understanding of our topic, we will take a tour around Ruby blocks and callable objects.
 
-**Blocks**
+## Blocks
+
 Blocks are used to capture pieces of code that can be passed into methods to be executed later, acting as anonymous functions.
+
 In Ruby, blocks can be delimited by _curly braces_ or by _do/end_ keyword pair.
 
 We are going to explore the **yield** keyword and **block_given?()** method, we will also learn what block variables are and their relationship to blocks acting as closures.
@@ -58,10 +60,21 @@ do_it { puts "I'm doing it" }
 ```
 
 Try calling `do_it` without a block, the console will inform you that the method was not given a block to execute.
+
 We can capture the exception by introducing the **block_given?()** method, the block will not throw an exception but rather provide _nil_ if block is not found.
 
-**Relationship between blocks and closures**
-Blocks act's as anonymous functions in ruby, it carries around the execution context in which it was defined and carry around a bunch of code to be called only when yielded.
+```rb
+def do_it
+  yield if block_given?
+end
+
+do_it
+
+```
+
+## Relationship between blocks and closures
+
+Blocks act's as **anonymous functions** in ruby, it carries around the execution context in which it was defined and carry around a bunch of code to be called only when yielded.
 
 Blocks local variables are a way to ensure that the variables within a block don't override another outer variable of the same name, circumventing the variable capturing behavior of a closure.
 
@@ -81,10 +94,13 @@ x = "outside x"
 ```
 
 Blocks have access to variables that already exist. However, block parameters behave differently from non-parameter variables.
+
 If you have a variable of a given name in scope and also use the same name as one of your block parameters, then the two variables are not the same as each other.
+
 Blocks serve as the body of anonymous function objects and those objects preserve the local variables that are in scope at the time of their creation.
 
-**Procs**
+## Procs
+
 In our definition above we mentioned the concept of first-class functions, this is made possible in Ruby by the use of Procs.
 
 Let's take a look at what Procs are:
@@ -122,7 +138,8 @@ Ruby offers an alternative way of calling lambdas, stabby lambdas
 
 ### The Difference Between a lambda and a Proc
 
-**Arity**
+# Arity
+
 Lambdas unlike procs expect an exact number of arguments to be passed. For Procs unassigned arguments are given nil and extra arguments are silently ignored.
 
 ```rb
@@ -156,7 +173,8 @@ l.call(4)
 
 Unlike Proc lambda is unhappy with the trick. This also happens when we get to supply extra arguments
 
-**Return semantic**
+# Return semantic
+
 Proc returns from the context it was created. it is advised to use lambdas because the return semantics of lambdas resemble the normal behavior of methods.
 
 ```rb
@@ -174,6 +192,7 @@ end
 ```
 
 `method_that_calls_proc_or_lambda()` takes a proc or lambda, prints out a message then invokes the proc or lambda. Depending on how the proc or lambda returns the final puts() statement will execute.
+
 `proc_or_lambda()` is a tiny helper function that tells us if `proc_like_thing()` is a lambda of proc.
 
 ```rb

@@ -138,7 +138,7 @@ Ruby offers an alternative way of calling lambdas, stabby lambdas
 
 ### The Difference Between a lambda and a Proc
 
-# Arity
+#### Arity
 
 Lambdas unlike procs expect an exact number of arguments to be passed. For Procs unassigned arguments are given nil and extra arguments are silently ignored.
 
@@ -173,7 +173,7 @@ l.call(4)
 
 Unlike Proc lambda is unhappy with the trick. This also happens when we get to supply extra arguments
 
-# Return semantic
+#### Return semantic
 
 Proc returns from the context it was created. it is advised to use lambdas because the return semantics of lambdas resemble the normal behavior of methods.
 

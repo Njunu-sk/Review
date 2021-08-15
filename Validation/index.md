@@ -34,7 +34,7 @@ Client-side validation is essential, it provides users with immediate feedback t
 Make sure you have Vue configured in your machine. Create a new Vue app with the above command:
 
 ```bash
-vue create Form-validation
+vue create vue-form-validation
 ```
 
 We are going to start by installing tailwind and setting up a demo template for practice. Install [tailwind plugin][https://www.npmjs.com/package/vue-cli-plugin-tailwind]
@@ -45,7 +45,7 @@ In the newly created repository, install the plugin using the above command:
 vue add tailwind
 ```
 
-Let's clean up the default Vue setup by deleting the HelloWorld component and its dependencies. Create a new component and set up the tailwind template, copy and paste the template from the above [pen][https://codepen.io/dev_njunu/pen/ylbqqqm]. Fire up the server and navigate to the local port, you will have a registration form. Feel free to customize it to your liking.
+Let's clean up the default Vue setup by deleting the HelloWorld component and its dependencies. Create a new component and set up the tailwind template, copy and paste the template(Tailwind Form Template) body elements from the above [pen][https://codepen.io/dev_njunu]. Fire up the server and navigate to the local port, you will have a registration form. Feel free to customize it to your liking.
 
 ### Introducing VeeValidate
 
@@ -72,10 +72,10 @@ Install the Vee Validate library:
 yarn add vee-validate@next
 ```
 
-After installation, create an empty folder _plugin_ in the _src_ folder and set up the validator, in the folder created:
+After installation, create an empty folder _plugin_ in the _src_ folder and set up the validator, in the folder created add a new file:
 
 ```
-touch validation.js
+validation.js
 ```
 
 Configure the plugin,
@@ -93,15 +93,31 @@ export default {
 
 We are importing and registering the components from the vee-validate library,giving them aliases so as not to collide with HTML elements.
 
-In our template, replace the _form_ element with _vee-form_ component and the _field_ element with _vee-field_ component.
+We need to let Vue know we are using the vee-validate library, update _main.js_ file to match:
 
-Refresh the browser and see that we have no error messages in our console, we have successfully installed and registered the library.
+```
+import { createApp } from 'vue';
+import VeeValidatePlugin from './plugin/validation';
+import App from './App.vue';
+import './assets/tailwind.css';
+
+const app = createApp(App);
+
+app.use(VeeValidatePlugin);
+
+app.mount('#app');
+
+```
+
+In our template, replace the _form_ element with _vee-form_ component.
+
+Refresh the browser and see that we have no error messages in our console, vee-validate has been successfully installed.
 
 ### Form Validation
 
-We are going to validate our first input field,_username_.We should provide a _name_ identifier to our _Field_ components, the identifier helps us to match the component to error the message.
+We are going to validate our first input field,_username_.We should change our input element to _vee-field_ component and provide a _name_ identifier to our _Field_ components, the identifier helps us to match the component to error messages.
 
-We have the above field:
+Our element should match the above:
 
 ```
 <vee-field
@@ -173,15 +189,34 @@ We are done with step 3, is time to set up the error component. Below the _field
 ```
 
 Note that the _name_ in the component must match with that defined in the _schema_ object and _field_ component.
-Restart your server and test the validation on the _username_ input, an error will be returned.
 
-Now that we are familiar we the internals of validation and the vee-validate, let's validate other input elements.
+Let's add a guard that will enable validation only on form submission, add a _submit_ event provided by vee-validate. Update _Form_ component to match:
+
+```
+<vee-form :validation-schema="schema" @submit="register" " >
+```
+
+We have emitted a _register_ function in our _Form_ component, let's define it:
+
+```
+methods: {
+  register(values){
+    console.log(values);
+  },
+};
+```
+
+The _values_ parameter is provided by the vee-validate library, which stores all the values from the form inputs, when validation returns a truthy the values will be logged in the console.
+
+Fill out the _username_ element in the form and submit the form, the form value should be returned in console, if you try to leave it empty a validation error will be returned.
+
+Now that we are familiar with validation and the vee-validate, let's validate other input elements.
 
 Import and register rules that will be used in our forms, update _validation.js_ file to match the above:
 
 ```
 import { Form as VeeForm, Field as VeeField, defineRule, ErrorMessage } from 'vee-validate'
-import { required, min, max, alpha_spaces as alphaSpaces, email, min_value as minVal, max_value as maxVal, not_on_of as excluded, confirmed } from '@vee-validate/rules'
+import { required, min, max, alpha_spaces as alphaSpaces, email, min_value as minVal, max_value as maxVal, not_one_of as excluded, confirmed } from '@vee-validate/rules'
 
 export default {
   install(app) {
@@ -212,7 +247,7 @@ schema: {
   username: 'required|min:3|max:50|alpha_spaces',
   email: 'required|min:3|max:20|email',
   age: 'required|min_value:1|max_value:100',
-  password: 'required|min_value:3|max_value:100',
+  password: 'required',
   password_confirmation: 'password_mismatch:@password',
   country: 'required|country_excluded:Africa',
 }
@@ -256,25 +291,13 @@ userData: {
 },
 ```
 
-Let's add a guard that will enable validation only on form submission, add a _submit_ event provided by vee-validate. Update _Form_ component to match:
+Update the _vee-form_ component to match the above:
 
 ```
 <vee-form :validation-schema="schema" @submit="register" :initial-values="userData" >
 ```
 
 Note that we are binding the initial value to the object userData, which contains key-value properties, the object value will be set as default select element in the drop-down.
-
-We have emitted a _register_ method in our _Form_ component, let's define it:
-
-```
-methods: {
-  register(values){
-    console.log(values);
-  },
-};
-```
-
-The _values_ params is provided by the vee-validate library, which stores all the values from the form inputs, when validation returns a truthy the values will be logged in the console, try it out.
 
 ### Custom Error Messages
 
@@ -320,6 +343,8 @@ Validation happens on certain triggers, register it after the _generateMessage_ 
 - ValidationOnInput happens when a field value is changed.
 - ValidationOnModelUpdate happens after form submission.
 
+In the configure function after the generateMessage object define the above:
+
 ```
 validateOnBlur: true,
 validateOnChange: true,
@@ -342,7 +367,7 @@ reg_alert_variant: 'bg-indigo-500',
 reg_alert_message: 'Please wait! Account is being registered.',
 ```
 
-These are just properties that we set to not display alert element when the form is in the progress of validation, update the _alert_ element to with the defined properties.
+These are properties that we set to not display alert element when the form is in the progress of validation, update the _alert_ element to with the defined properties.
 
 ```
 <div class="shadow-lg mt-3 pt-3 pb-3 w-full text-white text-center
@@ -353,8 +378,6 @@ These are just properties that we set to not display alert element when the form
   {{ reg_alert_msg }}
 </div>
 ```
-
-Make sure you remove the disabled tailwind property to display the element.
 
 We are using the v-if directive to toggle the alert message if set to a boolean and v-bind to display our tailwind properties.
 Define the properties in the _register function_, update it to match the above;
@@ -373,7 +396,22 @@ register(values) {
 },
 ```
 
-On submit we can disable the form and provide it with an alert message, and our form inputs will be logged in our console.
+We have defined alert properties and message but not included it in our form.
+Update our input element to a button binding it to _reg_in_submission_ property defined above:
+
+```
+<button
+  :disabled="reg_in_submission"
+  class="shadow-lg mt-3 pt-3 pb-3 w-full text-white bg-indigo-500
+  hover:bg-indigo-400 rounded-full cursor-pointer "
+  type="submit"
+  value="Create account"
+  >
+  Create Account
+</button>
+```
+
+On submit the form will be disable to avoid multiple form submissions and an alert message will be displayed, form input values will also be logged in the console as an object.
 
 ### Summary
 

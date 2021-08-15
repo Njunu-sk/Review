@@ -1,6 +1,6 @@
 ### Form Validation in Vue.js using VeeValidate
 
-Client-side validation is common in today's web applications and pages, it improves user experience and saves on application resources. Vue provides us with its built-in custom validation, it's recommended to use a third-party library like Vee Validated to avoid code repetition and it is also tested to work in all browsers.
+Client-side validation is common in today's web applications and pages, it improves user experience and saves on application resources. Vue provides us with its built-in custom validation, it's recommended to use a third-party library like Vee Validated to avoid code repetition and it is also tested to work with all browsers.
 
 In this tutorial, we will discuss and set up form validation using the vee-validate library.
 
@@ -49,7 +49,7 @@ Let's clean up the default Vue setup by deleting the HelloWorld component and it
 
 ### Introducing VeeValidate
 
-[VeeValidate][https://vee-validate.logaretm.com/v4/] is an effective validation library it is tested to work with most browsers. Before we get into working with the library let's discover it. The above library provides us with two ways of form validation, components and composition API. We are going to adopt the components approach in the above tutorial.
+[VeeValidate][https://vee-validate.logaretm.com/v4/] is an effective validation library it is tested to work with most browsers. Before we get into working with the library let's explore it. The above library provides us with two ways of form validation, components and composition API. We are going to adopt the components approach in the above tutorial.
 
 We are provided with the above components:
 
@@ -115,7 +115,7 @@ Refresh the browser and see that we have no error messages in our console, vee-v
 
 ### Form Validation
 
-We are going to validate our first input field,_username_.We should change our input element to _vee-field_ component and provide a _name_ identifier to our _Field_ components, the identifier helps us to match the component to error messages.
+We are going to validate our first input field, _username_.We should change our input element to _vee-field_ component and provide a _name_ identifier to our _Field_ components, the identifier helps us to match the component to error messages.
 
 Our element should match the above:
 
@@ -367,7 +367,7 @@ reg_alert_variant: 'bg-indigo-500',
 reg_alert_message: 'Please wait! Account is being registered.',
 ```
 
-These are properties that we set to not display alert element when the form is in the progress of validation, update the _alert_ element to with the defined properties.
+These are properties that we set to disable alert element from displaying when the form is in the progress of validation, update the _alert_ element with the defined properties.
 
 ```
 <div class="shadow-lg mt-3 pt-3 pb-3 w-full text-white text-center
@@ -411,7 +411,7 @@ Update our input element to a button binding it to _reg_in_submission_ property 
 </button>
 ```
 
-On submit the form will be disable to avoid multiple form submissions and an alert message will be displayed, form input values will also be logged in the console as an object.
+On submission the form will be disabled to avoid multiple form submissions and an alert message will be displayed, form input values will also be logged in the console as an object.
 
 ### Summary
 
